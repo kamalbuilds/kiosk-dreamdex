@@ -561,7 +561,13 @@ function Ticket({
 
   const total = quote ? notional + quote.fee : null;
   const payout = BigInt(contracts) * BigInt(1_000_000);
-  const feeBps = notional > BigInt(0) && quote ? Number((quote.fee * BigInt(10_000)) / notional) : null;
+  // The fee is already floor(notional * bps / 10000) on chain, so re-deriving the rate
+  // with BigInt division truncates a second time and a 25 bps integrator renders as
+  // "24 bps". Round in floating point instead, which recovers the registered rate.
+  const feeBps =
+    notional > BigInt(0) && quote
+      ? Math.round((Number(quote.fee) * 10_000) / Number(notional))
+      : null;
 
   return (
     <dl className="numerals mt-3 space-y-1.5 border-t border-rule px-4 pt-3 text-[12px]">
