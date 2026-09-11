@@ -176,6 +176,56 @@ The last one matters most: it proves the "shares sum to fee" assertion is not a
 tautology. Computing the integrator's cut independently rather than as
 `fee - platformShare` leaks a unit of dust per order, and the fuzzer finds it.
 
+## Verified live on Shannon
+
+`KioskRouter` is deployed at
+[`0x57ED83B351eDe66b2cb9C0dDa1F2247E1Cc62Be7`](https://shannon-explorer.somnia.network/address/0x57ED83B351eDe66b2cb9C0dDa1F2247E1Cc62Be7)
+on chain 50312, with `kiosk-demo`, `degen-lounge` and `shannon-weekly` registered at
+25 bps, split 13 to the host and 12 to the platform.
+
+Five real orders were placed against live DreamDEX pools and routed through it. Read
+back from the chain:
+
+| | value |
+| --- | --- |
+| routed orders | 5 |
+| routed notional | 3.445 tUSDC |
+| fees charged | 0.008611 tUSDC |
+| host payout wallet holds | 0.003272 tUSDC |
+| platform wallet holds | 0.003019 tUSDC |
+| router holds | 0 |
+
+The 0.002320 gap between fees charged and the two wallets is exactly the first route,
+which paid the deployer before the payees were split apart. It reconciles to the unit.
+
+Each run asserts four post-conditions that only a completed route can produce, because
+a transaction that returned a hash is an accepted request, not a completed operation:
+
+```
+PASS  Routed event attributes 0.475000 tUSDC to "kiosk-demo" on pool 0x034c3E…6Faa
+PASS  router accounting advanced by exactly 1 order, 0.475000 tUSDC notional, 0.001187 tUSDC fees
+PASS  integrator wallet actually received 0.000617 tUSDC
+PASS  router holds zero collateral, custody stayed with the trader and the payouts
+```
+
+**The first live run failed, and that is the point.** Three assertions passed and the
+fourth caught that the trader, the host payout and the platform were all the deployer,
+so every balance delta netted to zero and would have passed vacuously. `verify-live.mjs`
+now refuses to run at all when the integrator payout is the trader. A fee paid to
+yourself is not evidence.
+
+### Two Somnia gas traps, for anyone following
+
+Both cost real time and are now encoded in `scripts/deploy.sh`:
+
+1. **A failed deploy burns the whole limit rather than reverting cleanly.** The deploy
+   mined with `status 0` at 1,035,333 gas, then again at 3,982,050 after raising forge's
+   estimate multiplier. `forge script`'s estimator undershoots here; an explicit
+   `--gas-limit` on `forge create` worked first try.
+2. **Fresh storage is priced roughly 28x Ethereum.** One `setIntegrator` writing a
+   single small struct estimates **1,411,567 gas**. A 500,000 limit burned. Estimate
+   from the node, never pin an Ethereum number.
+
 ## What is not proven
 
 Stated plainly rather than buried:

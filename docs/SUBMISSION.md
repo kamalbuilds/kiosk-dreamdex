@@ -86,11 +86,18 @@ cap, the venue pays the host directly and nothing in this codebase changes.
   reverted. The sharpest one computes the integrator's share independently instead of
   as `fee - platformShare`; it leaks a unit of dust per order and the fuzzer finds it,
   which proves the sum-to-fee assertion is not a tautology.
+- `KioskRouter` is live at `0x57ED83B351eDe66b2cb9C0dDa1F2247E1Cc62Be7` on chain 50312.
+  Five real orders were placed against live DreamDEX pools and routed through it:
+  **3.445 tUSDC of routed notional, 0.008611 tUSDC of fees**, with the host payout
+  wallet holding 0.003272 and the router holding zero. Every figure is read back from
+  the chain and reconciles to the unit.
 - `scripts/verify-live.mjs` runs the full routed-order loop against a live Shannon
   market and asserts four post-conditions only a completed route can produce: the
   `Routed` event matches the order's pool and notional, router accounting advances by
   exactly one order, the host's wallet balance actually rises, and the router holds
-  zero collateral.
+  zero collateral. The first live run **failed** its fourth assertion because trader,
+  host and platform were the same address, which makes every balance delta net to zero
+  and pass vacuously. The script now refuses to run in that configuration.
 - `examples/plain-html/` is a static HTML file with no build step, no framework and no
   shared stylesheet, proving the one-script-tag claim on a host that shares nothing
   with us.
@@ -129,3 +136,13 @@ Collected while building, all reproducible:
    which read `0` on mainnet too. The comment reads as if it covers both.
 5. Builder codes are guarded out of the bot kit entirely by `assertBuilderDisabled`,
    which means the kit's users cannot discover the venue's own monetization rail exists.
+6. A failed deploy on Shannon mines with `status 0` having consumed the entire gas
+   limit rather than reverting cleanly. Observed at 1,035,333 gas and again at
+   3,982,050. `forge script`'s gas estimator undershoots; `forge create` with an
+   explicit `--gas-limit` succeeded first try. The gas-differences doc warns about this
+   for transfers but a deploy behaves the same way and it is easy to misread as a
+   contract bug.
+7. Fresh-storage writes are priced roughly 28x the Ethereum figure. A `setIntegrator`
+   call writing one small struct estimates **1,411,567 gas**. A 500,000 limit burned
+   without reverting. Worth stating as a concrete number in the docs, since "estimate,
+   do not pin" undersells the magnitude.
