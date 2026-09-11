@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 
 type Eip1193Provider = {
   request(args: { method: string; params?: unknown[] }): Promise<unknown>;
@@ -14,7 +14,15 @@ declare global {
   }
 }
 
-export type WalletPhase = "detecting" | "absent" | "disconnected" | "connecting" | "wrong-network" | "connected";
+export type WalletPhase =
+  | "detecting"
+  | "absent"
+  | "disconnected"
+  | "connecting"
+  | "wrong-network"
+  | "connected";
+
+type Status = "detecting" | "disconnected" | "connecting" | "connected";
 
 const SOMNIA_SHANNON = {
   chainName: "Somnia Shannon Testnet",
@@ -23,53 +31,50 @@ const SOMNIA_SHANNON = {
   blockExplorerUrls: ["https://shannon-explorer.somnia.network"],
 };
 
+/** An injected provider appears once, at load, and never unsubscribes. */
+const noopSubscribe = () => () => {};
+const readInjected = () => Boolean(window.ethereum);
+const serverInjected = () => false;
+
 export function useWallet(expectedChainId: number) {
-  const [phase, setPhase] = useState<WalletPhase>("detecting");
+  const hasProvider = useSyncExternalStore(noopSubscribe, readInjected, serverInjected);
+  const [status, setStatus] = useState<Status>("detecting");
   const [address, setAddress] = useState<string | null>(null);
   const [chainId, setChainId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const sync = useCallback(
-    async (provider: Eip1193Provider, accounts: string[]) => {
-      if (!accounts.length) {
-        setAddress(null);
-        setPhase("disconnected");
-        return;
-      }
-      setAddress(accounts[0]);
-      const hex = (await provider.request({ method: "eth_chainId" })) as string;
-      const id = Number.parseInt(hex, 16);
-      setChainId(id);
-      setPhase(id === expectedChainId ? "connected" : "wrong-network");
-    },
-    [expectedChainId],
-  );
-
-  useEffect(() => {
-    const provider = typeof window !== "undefined" ? window.ethereum : undefined;
-    if (!provider) {
-      setPhase("absent");
+  const sync = useCallback(async (provider: Eip1193Provider, accounts: string[]) => {
+    if (!accounts.length) {
+      setAddress(null);
+      setStatus("disconnected");
       return;
     }
+    setAddress(accounts[0]);
+    const hex = (await provider.request({ method: "eth_chainId" })) as string;
+    setChainId(Number.parseInt(hex, 16));
+    setStatus("connected");
+  }, []);
+
+  useEffect(() => {
+    if (!hasProvider) return;
+    const provider = window.ethereum;
+    if (!provider) return;
     let live = true;
+
     provider
       .request({ method: "eth_accounts" })
       .then((a) => {
         if (live) void sync(provider, a as string[]);
       })
       .catch(() => {
-        if (live) setPhase("disconnected");
+        if (live) setStatus("disconnected");
       });
 
     const onAccounts = (...args: never[]) => {
       void sync(provider, (args[0] ?? []) as string[]);
     };
     const onChain = (...args: never[]) => {
-      const id = Number.parseInt(args[0] as string, 16);
-      setChainId(id);
-      setPhase((p) =>
-        p === "absent" || p === "disconnected" ? p : id === expectedChainId ? "connected" : "wrong-network",
-      );
+      setChainId(Number.parseInt(args[0] as string, 16));
     };
     provider.on?.("accountsChanged", onAccounts);
     provider.on?.("chainChanged", onChain);
@@ -78,28 +83,25 @@ export function useWallet(expectedChainId: number) {
       provider.removeListener?.("accountsChanged", onAccounts);
       provider.removeListener?.("chainChanged", onChain);
     };
-  }, [expectedChainId, sync]);
+  }, [hasProvider, sync]);
 
   const connect = useCallback(async () => {
-    const provider = typeof window !== "undefined" ? window.ethereum : undefined;
-    if (!provider) {
-      setPhase("absent");
-      return;
-    }
+    const provider = window.ethereum;
+    if (!provider) return;
     setError(null);
-    setPhase("connecting");
+    setStatus("connecting");
     try {
       const accounts = (await provider.request({ method: "eth_requestAccounts" })) as string[];
       await sync(provider, accounts);
     } catch (err) {
       const e = err as { code?: number; message?: string };
-      setError(e.code === 4001 ? "Connection request dismissed in the wallet." : e.message ?? "Could not connect.");
-      setPhase("disconnected");
+      setError(e.code === 4001 ? "Connection request dismissed in the wallet." : (e.message ?? "Could not connect."));
+      setStatus("disconnected");
     }
   }, [sync]);
 
   const switchNetwork = useCallback(async () => {
-    const provider = typeof window !== "undefined" ? window.ethereum : undefined;
+    const provider = window.ethereum;
     if (!provider) return;
     const hexId = `0x${expectedChainId.toString(16)}`;
     setError(null);
@@ -121,6 +123,12 @@ export function useWallet(expectedChainId: number) {
       }
     }
   }, [expectedChainId]);
+
+  const phase: WalletPhase = !hasProvider
+    ? "absent"
+    : status === "connected" && chainId !== expectedChainId
+      ? "wrong-network"
+      : status;
 
   return { phase, address, chainId, error, connect, switchNetwork };
 }

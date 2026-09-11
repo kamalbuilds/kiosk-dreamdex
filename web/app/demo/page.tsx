@@ -115,7 +115,8 @@ export default function DemoPage() {
               </p>
               <p>
                 Kiosk is one script tag that plants the order ticket in the page instead of linking
-                away from it. We are running one below, in this issue, on the five minute BTC window.
+                away from it. We are running one below, in this issue, on whichever BTC window is
+                closest to its close.
                 It is live rather than a screenshot. If the book happens to be empty, it will say so
                 instead of drawing a number.
               </p>

@@ -32,7 +32,6 @@
     return;
   }
   var asset = self.getAttribute("data-asset") || "BTC";
-  var theme = self.getAttribute("data-theme") || "night";
 
   var a = document.createElement("a");
   a.href = self.src;
@@ -46,8 +45,6 @@
     encodeURIComponent(code) +
     "&asset=" +
     encodeURIComponent(asset) +
-    "&theme=" +
-    encodeURIComponent(theme) +
     "&kid=" +
     id;
   frame.title = "Kiosk prediction market for " + asset;

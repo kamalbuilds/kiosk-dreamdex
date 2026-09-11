@@ -74,7 +74,7 @@ export default async function DashboardPage({
   const code = (Array.isArray(rawCode) ? rawCode[0] : rawCode)?.trim().toLowerCase() || "kiosk-demo";
 
   return (
-    <main className="min-h-screen bg-neutral-950 px-6 py-10 font-mono text-neutral-200">
+    <main className="min-h-[100dvh] bg-neutral-950 px-6 py-10 font-mono text-neutral-200">
       <div className="mx-auto max-w-5xl space-y-6">
         <header className="flex flex-wrap items-end justify-between gap-3 border-b border-neutral-800 pb-4">
           <div>

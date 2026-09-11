@@ -1,37 +1,56 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 
 function buildSnippet(origin: string, code: string, asset: string) {
   return `<script src="${origin}/embed.js"\n        data-kiosk="${code}"\n        data-asset="${asset}" async></script>`;
 }
 
-export function CopySnippet({ code, asset }: { code: string; asset: string }) {
-  const [origin, setOrigin] = useState("https://your-kiosk-host");
-  const [state, setState] = useState<"idle" | "copied" | "failed">("idle");
+function selectionCopy(text: string): boolean {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.setAttribute("readonly", "");
+  ta.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+  document.body.appendChild(ta);
+  ta.select();
+  ta.setSelectionRange(0, text.length);
+  let ok = false;
+  try {
+    ok = document.execCommand("copy");
+  } catch {
+    ok = false;
+  }
+  document.body.removeChild(ta);
+  return ok;
+}
 
-  useEffect(() => setOrigin(window.location.origin), []);
+/** The snippet carries the origin the visitor is actually on, so it can be
+ *  pasted straight into a scratch file and still resolve. */
+const noopSubscribe = () => () => {};
+const readOrigin = () => window.location.origin;
+const serverOrigin = () => "https://your-kiosk-host";
+
+export function CopySnippet({ code, asset }: { code: string; asset: string }) {
+  const origin = useSyncExternalStore(noopSubscribe, readOrigin, serverOrigin);
+  const [state, setState] = useState<"idle" | "copied" | "failed">("idle");
 
   const snippet = buildSnippet(origin, code, asset);
 
   const copy = async () => {
+    let ok = false;
     try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(snippet);
-      } else {
-        const ta = document.createElement("textarea");
-        ta.value = snippet;
-        ta.style.position = "fixed";
-        ta.style.opacity = "0";
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        document.body.removeChild(ta);
-      }
-      setState("copied");
+      // The async clipboard can sit unresolved behind a permission prompt, which
+      // would leave the button with no feedback at all. Give it 600ms, then fall
+      // back to the selection copy, which either works or reports false.
+      await Promise.race([
+        navigator.clipboard.writeText(snippet),
+        new Promise((_, reject) => window.setTimeout(() => reject(new Error("slow")), 600)),
+      ]);
+      ok = true;
     } catch {
-      setState("failed");
+      ok = selectionCopy(snippet);
     }
+    setState(ok ? "copied" : "failed");
     window.setTimeout(() => setState("idle"), 2200);
   };
 
