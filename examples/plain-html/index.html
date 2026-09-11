@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shannon Weekly — a static site that sells prediction markets</title>
+<style>
+  /* Deliberately nothing to do with Kiosk's own design system. This page exists
+     to prove the widget survives a host it knows nothing about: no build step,
+     no framework, no bundler, no shared CSS. One script tag. */
+  :root { --ink: #16130f; --paper: #f4efe6; --rule: #ddd2bf; --accent: #9a3412; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 17px/1.65 Georgia, "Times New Roman", serif;
+  }
+  .wrap { max-width: 41rem; margin: 0 auto; padding: 3rem 1.25rem 6rem; }
+  .masthead {
+    border-bottom: 3px double var(--ink); padding-bottom: .75rem; margin-bottom: 2rem;
+    display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+  }
+  .masthead h1 {
+    font: 700 1.5rem/1 "Helvetica Neue", Arial, sans-serif;
+    letter-spacing: .14em; text-transform: uppercase; margin: 0;
+  }
+  .masthead span { font: .75rem/1 "Helvetica Neue", Arial, sans-serif; letter-spacing: .08em; color: #6b6154; }
+  h2 { font-size: 1.6rem; line-height: 1.25; margin: 0 0 .5rem; }
+  .byline { font: .8rem/1 "Helvetica Neue", Arial, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: #6b6154; margin-bottom: 2rem; }
+  p { margin: 0 0 1.2rem; }
+  .drop::first-letter { float: left; font-size: 3.4rem; line-height: .82; padding: .1rem .5rem 0 0; color: var(--accent); }
+  .aside {
+    border-left: 3px solid var(--accent); padding-left: 1rem; margin: 2rem 0;
+    font: italic 1.05rem/1.5 Georgia, serif; color: #4a4238;
+  }
+  .kiosk-slot { margin: 2.5rem 0; }
+  .kiosk-slot > p {
+    font: .7rem/1 "Helvetica Neue", Arial, sans-serif; letter-spacing: .12em;
+    text-transform: uppercase; color: #6b6154; margin: 0 0 .6rem;
+  }
+  footer { border-top: 1px solid var(--rule); margin-top: 3rem; padding-top: 1rem;
+    font: .8rem/1.5 "Helvetica Neue", Arial, sans-serif; color: #6b6154; }
+  code { background: #e8e0d2; padding: .1em .35em; border-radius: 2px; font-size: .85em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="masthead">
+    <h1>Shannon Weekly</h1>
+    <span>Issue 48 &middot; free edition</span>
+  </div>
+
+  <h2>The order book nobody stands on</h2>
+  <div class="byline">Markets desk</div>
+
+  <p class="drop">Every fifteen minutes a new question opens on DreamDEX and closes again, and most of
+  them go to settlement without a single trade against them. The pricing is not the
+  problem. The problem is that the person with an opinion and the venue where that
+  opinion pays out are never in the same room.</p>
+
+  <p>That gap is the whole business of this newsletter. Eleven thousand people read this
+  page every week and argue about exactly one thing: which way the next candle goes.
+  Until now the only thing we could sell them was an ad.</p>
+
+  <div class="aside">A reader who disagrees with us in the comments is worth nothing.
+  A reader who disagrees with us on the book is worth twenty five basis points.</div>
+
+  <p>So here is the market, in the page, in the middle of the argument. It is a real
+  Event Contract on Somnia Shannon. The odds below are read from the live order book,
+  the trade is signed by the reader's own wallet, and this newsletter earns a share of
+  every order its readers route through it.</p>
+
+  <!-- ────────────────────────────────────────────────────────────────────────
+       This is the entire integration. Everything above and below is our own
+       markup, untouched. Kiosk finds its own script tag, reads the attributes,
+       and plants an isolated iframe here.
+       ──────────────────────────────────────────────────────────────────────── -->
+  <div class="kiosk-slot">
+    <p>Take the other side</p>
+    <script src="http://localhost:3000/embed.js" data-kiosk="shannon-weekly" data-asset="BTC" async></script>
+  </div>
+
+  <p>Nothing about this page was built for it. There is no bundler here, no framework,
+  no shared stylesheet with the widget, and no server of our own. The file you are
+  reading is static HTML on disk, which is the point: if it works here it works in a
+  Ghost post, a Webflow block, a Discord landing page or a docs site.</p>
+
+  <p>The reader keeps custody the whole way through. Kiosk never touches the position,
+  only the referral, and the split is enforced on chain by a contract we do not
+  control either.</p>
+
+  <footer>
+    Shannon Weekly is a fictional publication built to exercise a real integration.
+    The market, the order book, the wallet prompt and the fee split are all live on
+    Somnia Shannon testnet (chain 50312). Swap <code>localhost:3000</code> for the
+    deployed Kiosk host to run this file from anywhere.
+  </footer>
+</div>
+</body>
+</html>
