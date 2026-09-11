@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Where the fee goes",
+    "quality_profile": "showcase",
+    "viewBox": [1120, 630],
+    "legend": { "mode": "hidden" }
+  },
+  "components": [
+    { "id": "notional", "type": "frontend", "label": "Trade notional", "sublabel": "reader's stake", "pos": [50, 140], "size": [230, 84] },
+    { "id": "router", "type": "backend", "label": "KioskRouter.route(...)", "sublabel": "25 bps total", "tag": "zero collateral at rest", "pos": [370, 132], "size": [290, 100] },
+    { "id": "hostpay", "type": "messagebus", "label": "Host payout", "sublabel": "13 bps", "pos": [790, 50], "size": [260, 84] },
+    { "id": "platform", "type": "backend", "label": "Platform", "sublabel": "12 bps", "pos": [790, 230], "size": [260, 84] },
+
+    { "id": "order", "type": "database", "label": "placeBinaryOrder(...)", "sublabel": "address builder, uint96 builderFeeBpsTimes1k", "pos": [50, 430], "size": [300, 100] },
+    { "id": "cap", "type": "external", "label": "maxBuilderFeeBpsTimes1k", "sublabel": "reads 0 on Event Contract pools", "pos": [430, 430], "size": [300, 100] },
+    { "id": "builder", "type": "external", "label": "Builder seat", "sublabel": "pays 0 today", "pos": [800, 430], "size": [260, 100] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Builder seat on the venue: dormant until the cap rises", "wraps": ["order", "cap", "builder"] }
+  ],
+  "connections": [
+    { "id": "in", "from": "notional", "to": "router", "label": "25 bps", "fromSide": "right", "toSide": "left" },
+    { "id": "host-share", "from": "router", "to": "hostpay", "label": "13 bps", "variant": "emphasis", "fromSide": "right", "toSide": "left" },
+    { "id": "platform-share", "from": "router", "to": "platform", "label": "12 bps", "fromSide": "right", "toSide": "left" },
+    { "id": "capped", "from": "order", "to": "cap", "label": "capped by", "variant": "dashed", "fromSide": "right", "toSide": "left" },
+    { "id": "seat", "from": "cap", "to": "builder", "label": "0", "variant": "dashed", "fromSide": "right", "toSide": "left" }
+  ]
+}

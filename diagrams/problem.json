@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "The distribution gap",
+    "quality_profile": "showcase",
+    "viewBox": [960, 540],
+    "legend": { "mode": "hidden" }
+  },
+  "components": [
+    { "id": "newsletter", "type": "frontend", "label": "Newsletter", "sublabel": "subscribers", "pos": [50, 96], "size": [200, 66] },
+    { "id": "groupchat", "type": "frontend", "label": "Group chat", "sublabel": "members", "pos": [50, 237], "size": [200, 66] },
+    { "id": "thread", "type": "frontend", "label": "Comment thread", "sublabel": "commenters", "pos": [50, 378], "size": [200, 66] },
+
+    { "id": "gap", "type": "messagebus", "label": "NO PATH", "pos": [420, 96], "size": [120, 348] },
+
+    { "id": "book", "type": "database", "label": "Order book", "sublabel": "Up / Down, 5-60 min", "pos": [715, 150], "size": [190, 66], "tag": "Somnia 50312" },
+    { "id": "dead", "type": "database", "label": "83.5%", "sublabel": "markets never traded", "pos": [715, 330], "size": [190, 66] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Where the audience is", "wraps": ["newsletter", "groupchat", "thread"] },
+    { "kind": "region", "label": "DreamDEX exchange", "wraps": ["book", "dead"] }
+  ],
+  "connections": [
+    { "id": "newsletter-stops", "from": "newsletter", "to": "gap", "variant": "dashed", "fromSide": "right", "toSide": "left" },
+    { "id": "groupchat-stops", "from": "groupchat", "to": "gap", "variant": "dashed", "fromSide": "right", "toSide": "left" },
+    { "id": "thread-stops", "from": "thread", "to": "gap", "variant": "dashed", "fromSide": "right", "toSide": "left" },
+    { "id": "listed-not-traded", "from": "book", "to": "dead", "label": "listed, no taker", "fromSide": "bottom", "toSide": "top", "labelDy": 70 }
+  ]
+}

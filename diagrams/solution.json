@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Kiosk closes the gap with one script tag",
+    "quality_profile": "showcase",
+    "viewBox": [1120, 630],
+    "legend": { "mode": "hidden" }
+  },
+  "components": [
+    { "id": "embed", "type": "messagebus", "label": "<script src=\".../embed.js\">", "sublabel": "data-kiosk=\"SLUG\"", "pos": [70, 90], "size": [330, 84] },
+    { "id": "kiosk", "type": "frontend", "label": "Kiosk iframe", "sublabel": "sandboxed", "tag": "live Up / Down odds", "pos": [70, 270], "size": [330, 80] },
+    { "id": "reader", "type": "frontend", "label": "Reader wallet", "sublabel": "signs in place", "pos": [70, 445], "size": [330, 80] },
+
+    { "id": "book", "type": "database", "label": "Order book", "sublabel": "live odds", "pos": [700, 150], "size": [300, 80] },
+    { "id": "pool", "type": "database", "label": "Event Contract pool", "sublabel": "5 / 15 / 60 min", "pos": [700, 330], "size": [300, 80] },
+
+    { "id": "router", "type": "backend", "label": "KioskRouter.route(...)", "sublabel": "referral + fee only", "pos": [700, 500], "size": [300, 80] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Host page: newsletter, blog, comment thread", "wraps": ["embed", "kiosk", "reader"] },
+    { "kind": "region", "label": "DreamDEX on Somnia 50312", "wraps": ["book", "pool"] }
+  ],
+  "connections": [
+    { "id": "plant", "from": "embed", "to": "kiosk", "label": "plants iframe", "fromSide": "bottom", "toSide": "top", "labelDy": 60 },
+    { "id": "click", "from": "kiosk", "to": "reader", "label": "takes the click", "fromSide": "bottom", "toSide": "top", "labelDy": 60 },
+    { "id": "odds", "from": "kiosk", "to": "book", "label": "reads odds", "fromSide": "right", "toSide": "left" },
+    { "id": "order", "from": "reader", "to": "pool", "label": "placeBinaryOrder", "variant": "emphasis", "fromSide": "right", "toSide": "left" },
+    { "id": "fee", "from": "reader", "to": "router", "label": "fee + referral", "variant": "dashed", "fromSide": "right", "toSide": "left" }
+  ]
+}
