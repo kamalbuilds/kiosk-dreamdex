@@ -32,10 +32,10 @@ BEATS=(
   "b1 v1 diag $DIAG/problem.png"
   "b2 v2 diag $DIAG/solution.png"
   "b3 v3 card $FR/B2-widget 10 120"
-  "b4 v5 wallet $RABBY"
+  "b4 v5 approval $RABBY 136 334"
   "b5 v4 diag $DIAG/moneypath.png"
-  "b6 v6 wide $FR/D-dash 0 92"
-  "b7 v7 wide $FR/A-host 0 44"
+  "b6 v6 kiosk $RABBY 470 119"
+  "b7 v7 wide $FR/D-dash 0 92"
   "b8 v8 card_end -"
 )
 
@@ -57,7 +57,13 @@ from_frames() {  # from_frames <stagedir> <seconds> <mode> <out>
   [ "$n" -gt 0 ] || return 1
   frames=$(/usr/bin/python3 -c "print(int(round(30*$secs)))")
   rate=$(/usr/bin/python3 -c "print(max(0.4, $n/$secs))")
-  if [ "$mode" = "card" ]; then
+  if [ "$mode" = "approval" ]; then
+    # Portrait wallet window: fit to height, centre on the brand canvas.
+    vf="scale=-2:1000:flags=lanczos,pad=${W}:${H}:(ow-iw)/2:(oh-ih)/2:${BG},fps=30,format=yuv420p"
+  elif [ "$mode" = "kiosk" ]; then
+    # Widget capture: the kiosk occupies the left 1140px of a 2940 wide frame.
+    vf="crop=1140:1684:0:0,scale=-2:1010:flags=lanczos,pad=${W}:${H}:(ow-iw)/2:(oh-ih)/2:${BG},fps=30,format=yuv420p"
+  elif [ "$mode" = "card" ]; then
     vf="crop=840:1240:0:0,scale=-2:1010:flags=lanczos,pad=${W}:${H}:(ow-iw)/2:(oh-ih)/2:${BG},fps=30,format=yuv420p"
   else
     vf="scale=${W}:-2:flags=lanczos,crop=${W}:${H}:0:0,fps=30,format=yuv420p"
@@ -98,12 +104,6 @@ for spec in "${BEATS[@]}"; do
     diag)
       [ -f "$src" ] || { echo "  $id: MISSING diagram $src"; continue; }
       from_still "$src" "$d" "$WORK/$id.mp4" ;;
-    wallet)
-      if [ -d "$src" ] && [ "$(ls "$src"/*.png 2>/dev/null | wc -l)" -gt 0 ]; then
-        n=$(stage "$id" "$src" 0 999); from_frames "$WORK/s-$id" "$d" card "$WORK/$id.mp4"
-      else
-        echo "  $id: MISSING wallet frames, skipping beat"; continue
-      fi ;;
     card_end)
       /usr/bin/python3 "$(dirname "$0")/make-cards.py" >/dev/null
       ffmpeg -y -loglevel error -loop 1 -i /tmp/kioskcards/end.png -t "$d" -r 30 \
