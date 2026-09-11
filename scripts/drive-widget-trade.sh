@@ -22,7 +22,7 @@ print('YES' if any('notification.html' in (t.get('url') or '') for t in r.get('t
 approve_one() {
   bhn "$PROFILE" use "chrome-extension://$RABBY/notification.html" >/dev/null 2>&1
   sleep 2
-  for label in Confirm Sign Approve Continue "Sign and Send"; do
+  for label in Connect Confirm Sign Approve Continue "Sign and Send"; do
     if bhn "$PROFILE" click "$label" >/dev/null 2>&1; then
       echo "    approved via: $label"
       return 0
@@ -33,8 +33,23 @@ approve_one() {
 }
 
 echo "widget: $EMBED"
-bhn "$PROFILE" use "$EMBED" >/dev/null 2>&1
-sleep 2
+bhn "$PROFILE" goto "$EMBED" >/dev/null 2>&1
+sleep 8
+
+# Connect first if the site is not authorised on this tab. Rabby drops the grant when
+# the page is reloaded from a different origin path, so this cannot be assumed.
+NEEDS_CONNECT=$(bhn "$PROFILE" eval "(()=>{const b=[...document.querySelectorAll('button')].find(x=>/Connect wallet/i.test(x.textContent||'')); return b ? 'YES' : 'NO';})()" 2>/dev/null | grep -o 'YES\|NO' | head -1)
+if [ "$NEEDS_CONNECT" = "YES" ]; then
+  echo "connecting wallet"
+  bhn "$PROFILE" eval "(()=>{const b=[...document.querySelectorAll('button')].find(x=>/Connect wallet/i.test(x.textContent||'')); if(b){b.click(); return 'clicked';} return 'none';})()" >/dev/null 2>&1
+  for _ in 1 2 3 4 5 6 7 8; do
+    sleep 2
+    if [ "$(popup_open)" = "YES" ]; then approve_one; break; fi
+  done
+  sleep 4
+  bhn "$PROFILE" use "$EMBED" >/dev/null 2>&1
+  sleep 3
+fi
 
 ACTION=$(bhn "$PROFILE" eval "(()=>{const b=[...document.querySelectorAll('button')].find(x=>/^Buy /.test(x.textContent||'')); if(!b) return 'NO_ACTION'; b.click(); return b.textContent.trim();})()" 2>/dev/null)
 echo "clicked: $ACTION"
