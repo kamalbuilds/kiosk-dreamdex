@@ -15,8 +15,13 @@ fi
 echo "collateral: $COLLATERAL"
 
 cd contracts
+# Somnia prices state creation far above Ethereum, and a deploy that is given an
+# Ethereum-shaped gas limit mines with status 0 having burned the whole limit rather
+# than reverting cleanly. Observed once at 1,035,333 gas. forge's own estimate
+# undershoots, so the multiplier is raised well past the 130 default.
 forge script script/Deploy.s.sol \
   --rpc-url "${RPC_URL:-https://dream-rpc.somnia.network}" \
+  --gas-estimate-multiplier "${GAS_MULT:-500}" \
   --broadcast --slow -vvv 2>&1 | tee /tmp/kiosk-deploy.log
 
 ADDR=$(grep -Eo 'KioskRouter +0x[0-9a-fA-F]{40}' /tmp/kiosk-deploy.log | tail -1 | grep -Eo '0x[0-9a-fA-F]{40}')

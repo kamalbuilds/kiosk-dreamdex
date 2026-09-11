@@ -35,8 +35,9 @@ export default function Home() {
         {/* hero -------------------------------------------------------- */}
         <section className="relative overflow-hidden border-b border-rule">
           <div className="hairline-grid pointer-events-none absolute inset-0 opacity-60" aria-hidden />
+          <div className="kerb pointer-events-none absolute inset-x-0 bottom-0 h-20" aria-hidden />
           <div className="relative mx-auto grid max-w-[1200px] items-center gap-12 px-5 pt-12 pb-16 lg:grid-cols-[1.05fr_minmax(0,420px)] lg:gap-16 lg:px-8 lg:pt-16">
-            <div>
+            <div className="min-w-0">
               <h1 className="max-w-[20ch] text-[38px] leading-[1.0] font-bold tracking-[-0.035em] text-paper sm:text-[52px] lg:text-[58px]">
                 Plant a market on someone else&apos;s corner.
               </h1>
@@ -54,12 +55,12 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="relative justify-self-center lg:justify-self-end">
+            <div className="relative min-w-0">
               <div
                 className="asphalt pointer-events-none absolute inset-x-[-14%] -bottom-8 h-28 rounded-[50%]"
                 aria-hidden
               />
-              <div className="relative">
+              <div className="relative mx-auto lg:ml-auto lg:mr-0">
                 <KioskUnit code="kiosk-demo" asset="BTC" />
               </div>
             </div>

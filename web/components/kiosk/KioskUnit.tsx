@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   CHAIN_ID,
   listLiveMarkets,
@@ -18,6 +18,7 @@ import {
   formatCollateral,
   formatCountdown,
   formatPrice,
+  formatQty,
   readableError,
   shortAddress,
   type TradeErrorKind,
@@ -70,10 +71,12 @@ export function KioskUnit({ code, asset }: { code: string; asset: string }) {
   const wallet = useWallet(CHAIN_ID);
   const [side, setSide] = useState<Side>("up");
   const [contracts, setContracts] = useState(10);
-  const [quote, setQuote] = useState<Quote | null>(null);
-  const [quoteError, setQuoteError] = useState<string | null>(null);
+  const [quoted, setQuoted] = useState<{
+    key: string;
+    quote: Quote | null;
+    error: string | null;
+  } | null>(null);
   const [trade, setTrade] = useState<Trade>({ status: "idle" });
-  const quoteSeq = useRef(0);
 
   const m = feed.market;
   const now = useSecond(feed.phase === "ready");
@@ -117,36 +120,33 @@ export function KioskUnit({ code, asset }: { code: string; asset: string }) {
     }
   }, [leg, m, contracts]);
 
+  // The quote is stored against the notional it was priced for, so a stale fee
+  // can never be shown next to a size the visitor has already changed.
+  const notionalKey = sizing.notional === null ? null : sizing.notional.toString();
+
   useEffect(() => {
-    const raw = sizing.notional;
-    if (!raw) {
-      setQuote(null);
-      setQuoteError(null);
-      return;
-    }
-    const seq = ++quoteSeq.current;
+    if (notionalKey === null) return;
+    const raw = BigInt(notionalKey);
     const id = window.setTimeout(() => {
       quoteFee(code, raw)
-        .then((q) => {
-          if (seq === quoteSeq.current) {
-            setQuote(q);
-            setQuoteError(null);
-          }
-        })
+        .then((q) => setQuoted({ key: notionalKey, quote: q, error: null }))
         .catch((err: unknown) => {
-          if (seq === quoteSeq.current) {
-            const raw = (err as Error).message ?? "";
-            setQuote(null);
-            setQuoteError(
-              raw.includes("NEXT_PUBLIC_KIOSK_ROUTER")
-                ? "KioskRouter is not deployed in this environment, so the fee cannot be quoted."
-                : raw || "Fee quote unavailable.",
-            );
-          }
+          const detail = (err as Error).message ?? "";
+          setQuoted({
+            key: notionalKey,
+            quote: null,
+            error: detail.includes("NEXT_PUBLIC_KIOSK_ROUTER")
+              ? "KioskRouter is not deployed in this environment, so the fee cannot be quoted."
+              : detail || "Fee quote unavailable.",
+          });
         });
     }, 250);
     return () => window.clearTimeout(id);
-  }, [code, sizing.notional]);
+  }, [code, notionalKey]);
+
+  const fresh = quoted && quoted.key === notionalKey ? quoted : null;
+  const quote = fresh?.quote ?? null;
+  const quoteError = fresh?.error ?? null;
 
   const submit = useCallback(async () => {
     if (!m || !leg) return;
@@ -442,12 +442,12 @@ function BookLine({
     <div className="numerals mt-2.5 flex items-center gap-3 px-4 text-[11px] text-paper-3">
       <span>
         bid <span className="text-up">{bestBid ? formatPrice(bestBid.price) : "--"}</span>
-        {bestBid ? <span> ×{bestBid.quantity}</span> : null}
+        {bestBid ? <span> ×{formatQty(bestBid.quantity)}</span> : null}
       </span>
       <span className="h-3 w-px bg-rule-2" aria-hidden />
       <span>
         ask <span className="text-down">{bestAsk ? formatPrice(bestAsk.price) : "--"}</span>
-        {bestAsk ? <span> ×{bestAsk.quantity}</span> : null}
+        {bestAsk ? <span> ×{formatQty(bestAsk.quantity)}</span> : null}
       </span>
     </div>
   );
@@ -591,7 +591,7 @@ function Ticket({
       <Row label="pays if right" value={`${formatCollateral(payout)} tUSDC`} />
       {leg.depth < contracts ? (
         <p className="pt-1 text-[11px] leading-relaxed text-sodium">
-          Only {leg.depth} contracts rest at this price. The order is immediate-or-cancel, so the rest
+          Only {formatQty(leg.depth)} contracts rest at this price. The order is immediate-or-cancel, so the rest
           simply will not fill.
         </p>
       ) : null}
@@ -842,7 +842,7 @@ function Plate({
     <div className="plate mt-3 flex items-center justify-between gap-2 px-4 py-2">
       <div className="flex min-w-0 items-center gap-2">
         <span className="rivet shrink-0" aria-hidden />
-        <span className="truncate">
+        <span className="min-w-0 truncate">
           {code} · somnia {CHAIN_ID}
           {market ? ` · pool ${shortAddress(market.pool)}` : ""}
         </span>

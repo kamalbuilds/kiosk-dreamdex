@@ -20,6 +20,12 @@ export function formatPrice(p: number): string {
   return p.toFixed(3).replace(/0$/, "");
 }
 
+/** Book depth. Whole contracts stay whole; a partial lot keeps two places. */
+export function formatQty(q: number): string {
+  if (!Number.isFinite(q)) return "--";
+  return Number.isInteger(q) ? String(q) : q.toFixed(2);
+}
+
 /** 252_000 -> "04:12". Over an hour -> "1:04:12". */
 export function formatCountdown(ms: number): string {
   const total = Math.max(0, Math.floor(ms / 1000));

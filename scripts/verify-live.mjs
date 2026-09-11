@@ -83,6 +83,12 @@ const [n0, f0, o0, payout, feeBps, active] = st0;
 if (!active) fail(`integrator "${CODE}" is not registered on the router. Run the deploy script or setIntegrator first.`);
 console.log(`integrator payout=${payout} feeBps=${feeBps} routed so far: ${o0} orders, ${usdc(n0)}, ${usdc(f0)} fees`);
 
+// A payment to yourself is not a payment. If the trader is also the payee, every
+// balance assertion below nets to zero and passes vacuously, so refuse to run.
+if (payout.toLowerCase() === me.toLowerCase()) {
+  fail(`integrator payout is the trader (${me}). A fee paid to yourself proves nothing. Point the integrator at a third-party address.`);
+}
+
 const gas = await pub.getBalance({ address: me });
 const usdcBal = await pub.readContract({ address: COLLATERAL, abi: erc20Abi, functionName: "balanceOf", args: [me] });
 console.log(`balances STT=${Number(gas) / 1e18}  tUSDC=${Number(usdcBal) / 1e6}`);

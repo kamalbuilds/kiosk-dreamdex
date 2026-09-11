@@ -21,9 +21,15 @@ contract Deploy is Script {
         vm.startBroadcast(pk);
         KioskRouter router = new KioskRouter(collateral, platformPayout);
 
-        // Launch integrators. 25 bps total, half to the platform, half to the host.
+        // Launch integrators. 25 bps total, of which 12 to the platform, so the host
+        // keeps the larger half. Every slug the shipped examples embed must be
+        // registered here or the widget correctly refuses to quote a fee.
+        //   kiosk-demo     the live widget on the landing page
+        //   degen-lounge   the /demo publisher host page
+        //   shannon-weekly examples/plain-html, the no-build-step static host
         router.setIntegrator(keccak256("kiosk-demo"), deployer, 25, 12);
         router.setIntegrator(keccak256("degen-lounge"), deployer, 25, 12);
+        router.setIntegrator(keccak256("shannon-weekly"), deployer, 25, 12);
         vm.stopBroadcast();
 
         console.log("KioskRouter", address(router));
