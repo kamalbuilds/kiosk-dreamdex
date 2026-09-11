@@ -212,6 +212,32 @@ PASS  integrator wallet actually received 0.000617 tUSDC
 PASS  router holds zero collateral, custody stayed with the trader and the payouts
 ```
 
+### The widget itself, with a real browser wallet
+
+Not just the script. A trade driven through the deployed widget at
+`kiosk-dreamdex.vercel.app` with a browser wallet, signing three prompts: the
+collateral allowance, the user's own `placeBinaryOrder` on the venue pool, and the
+`KioskRouter.route` record.
+
+```
+Order placed and routed.
+order id   147573952589676507835
+notional   4.38 tUSDC
+fee routed 0.0109 tUSDC
+approve 0xed58…cbaa   order 0xa62e…958e   route 0xcb76…cdf1
+```
+
+Read back from chain, every figure reconciles against what the widget quoted before
+the user clicked:
+
+| | before | after | delta |
+| --- | --- | --- | --- |
+| router orders | 5 | 6 | +1 |
+| routed notional | 3.445 | 7.825 tUSDC | +4.38, the exact order |
+| host payout wallet | 0.003272 | 0.008966 tUSDC | +0.005694, the quoted host share |
+
+`scripts/drive-widget-trade.sh` makes it repeatable.
+
 **The first live run failed, and that is the point.** Three assertions passed and the
 fourth caught that the trader, the host payout and the platform were all the deployer,
 so every balance delta netted to zero and would have passed vacuously. `verify-live.mjs`

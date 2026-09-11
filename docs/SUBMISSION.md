@@ -91,6 +91,12 @@ cap, the venue pays the host directly and nothing in this codebase changes.
   **3.445 tUSDC of routed notional, 0.008611 tUSDC of fees**, with the host payout
   wallet holding 0.003272 and the router holding zero. Every figure is read back from
   the chain and reconciles to the unit.
+- **The widget itself trades.** A real order was driven through the deployed widget with
+  a browser wallet, signing the allowance, the user's own `placeBinaryOrder` on the
+  venue pool, and the `KioskRouter.route` record. Order id 147573952589676507835,
+  notional 4.38 tUSDC, fee 0.0109 tUSDC. On chain the router went 5 to 6 orders, routed
+  notional 3.445 to 7.825 tUSDC, and the host payout wallet 0.003272 to 0.008966 tUSDC,
+  which is exactly the host share the widget quoted before the click.
 - `scripts/verify-live.mjs` runs the full routed-order loop against a live Shannon
   market and asserts four post-conditions only a completed route can produce: the
   `Routed` event matches the order's pool and notional, router accounting advances by
