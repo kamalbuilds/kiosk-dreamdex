@@ -5,6 +5,10 @@ the page owner for the order flow.**
 
 Somnia × DreamDEX Event Contracts Hackathon. Shannon testnet, chain 50312.
 
+**Live: https://kiosk-dreamdex.vercel.app**
+Widget on a third-party page: https://kiosk-dreamdex.vercel.app/demo
+Host dashboard: https://kiosk-dreamdex.vercel.app/dashboard?code=kiosk-demo
+
 ```html
 <script src="https://<host>/embed.js" data-kiosk="shannon-weekly" data-asset="BTC" async></script>
 ```
