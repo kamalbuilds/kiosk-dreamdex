@@ -70,7 +70,7 @@ export default function Home() {
         <section className="border-b border-rule">
           <div className="mx-auto max-w-[1200px] px-5 py-16 lg:px-8 lg:py-24">
             <div className="grid gap-10 lg:grid-cols-[minmax(0,42ch)_1fr] lg:gap-16">
-              <div>
+              <div className="min-w-0">
                 <h2 className="text-[30px] leading-[1.05] font-bold tracking-[-0.025em] text-paper sm:text-[38px]">
                   The venue already built the till and never opened it.
                 </h2>
@@ -81,7 +81,7 @@ export default function Home() {
                 </p>
               </div>
 
-              <div>
+              <div className="min-w-0">
                 <div className="chassis rounded-kiosk overflow-hidden">
                   <pre className="numerals overflow-x-auto px-4 py-5 text-[12.5px] leading-[1.85] sm:px-6 sm:text-[13.5px]">
                     <code>
@@ -168,7 +168,7 @@ export default function Home() {
                   the fee starts landing in your payout address instead of ours.
                 </p>
               </div>
-              <div className="self-start">
+              <div className="min-w-0 self-start">
                 <CopySnippet code="degen-lounge" asset="BTC" />
                 <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-[13px] text-paper-3">
                   <span>
