@@ -24,33 +24,33 @@ OUT = pathlib.Path("/tmp/kioskaudio")
 OUT.mkdir(exist_ok=True)
 
 SEGMENTS = [
-    ("00", "Kiosk. One script tag turns any page into a prediction market, and pays the page owner "
-           "for the order flow."),
-    ("07", "Kiosk is live on Somnia Shannon. The router address is on screen, the code is public, and "
-           "every number in this video was read back from the chain, not from our own database."),
-    ("01", "Every order on a DreamDEX event contract carries two arguments almost nobody looks at. "
-           "An address called builder, and a fee for that builder. The venue is willing to pay whoever "
-           "brings it order flow. I read that cap on chain. On Shannon, and on mainnet, it is zero. "
-           "The seat exists, and nobody is sitting in it."),
-    ("02", "Eighty three and a half percent of DreamDEX markets never see a single trade. That is not a "
-           "pricing problem. The person with an opinion, and the venue where that opinion pays out, are "
-           "never in the same room. Ninety five projects were built for this venue. Almost every one of "
-           "them is a place you have to go to."),
-    ("03", "Kiosk goes the other way. This is a newsletter. Static HTML on a disk. No bundler, no framework, "
-           "no stylesheet shared with us. One script tag, and the market sits in the middle of the argument. "
-           "The odds come from the live order book. The countdown is the real window expiry."),
-    ("04", "The reader picks a side and signs it themselves, against DreamDEX's own pool. Kiosk never holds "
-           "the position. The allowance, the order on the venue, then the routing record. Order placed and "
-           "routed. Four point three eight tUSDC of notional, and the host just earned twenty five basis "
-           "points of it."),
-    ("05", "The host reads that from the router contract, not from our database. On chain the router went "
-           "from five orders to six, and the host payout wallet rose by exactly the share the widget quoted "
-           "before the click. Thirty nine contract tests, and five deliberate bugs, each one confirmed to "
-           "turn those tests red."),
-    ("06", "We charge our own fee today because the venue's is switched off. The day DreamDEX raises that "
-           "cap, the same address is already threaded through as the builder, and the venue pays the host "
-           "directly. Prediction markets do not need another terminal. They need to be where the argument "
-           "already is."),
+    ("v1", "A prediction market only works if somebody takes the other side. On DreamDEX, most "
+           "markets never see a single trade. Not because the odds are wrong, but because the "
+           "people with an opinion are somewhere else. In a newsletter, a group chat, a comment "
+           "thread. The market is on the exchange. The argument is everywhere else."),
+    ("v2", "Kiosk is one line of HTML that puts the market inside the argument. A publisher pastes "
+           "a script tag, and a live up or down ticket appears in their page."),
+    ("v3", "The odds come straight from the order book. The countdown is the real window closing. "
+           "The reader picks a side, sets a size, and signs it with their own wallet, against "
+           "DreamDEX's own pool. Kiosk never holds the position."),
+    ("v4", "And the page owner gets paid. Twenty five basis points of everything their readers "
+           "route, split on chain, thirteen of them to the host. The exchange already wrote this "
+           "door into its own function signature. Every order carries a builder address and a fee "
+           "for it. Today that fee is set to zero, and nobody is standing there."),
+    ("v5", "This is live on Somnia Shannon. A real router contract, real orders against live "
+           "pools, and a host wallet whose balance went up by exactly what the ticket quoted "
+           "before the click."),
+    ("v4b", "Nothing here is a screenshot. The router is a contract on Shannon, and a trade placed "
+            "through this widget moved it from five routed orders to six, and moved the host's "
+            "wallet by exactly the share the ticket had quoted a moment before the click."),
+    ("v5b", "The contracts carry thirty nine tests. Passing was not the bar, so five deliberate bugs "
+            "were introduced one at a time, and each one was confirmed to turn the suite red before "
+            "being put back. One of them leaked a single unit of dust per order, and the fuzzer "
+            "caught it."),
+    ("v7", "When DreamDEX turns its own builder fee on, the host's address is already sitting in the "
+           "order. The venue starts paying them directly, and nothing in this code has to change. "
+           "The market does not need another terminal. It needs to be where the argument already is."),
+    ("v6", "One script tag. Kiosk dreamdex dot vercel dot app."),
 ]
 
 
