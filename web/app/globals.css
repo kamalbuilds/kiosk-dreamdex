@@ -1,0 +1,264 @@
+@import "tailwindcss";
+
+@theme {
+  /* Kiosk: a painted steel newsstand under a sodium lamp. */
+  --color-ink: #070c0a;
+  --color-ink-2: #0b1310;
+  --color-ink-3: #111c17;
+  --color-ink-4: #18271f;
+
+  --color-paper: #e9e2d4;
+  --color-paper-2: #b9b5a7;
+  --color-paper-3: #7d8279;
+
+  --color-rule: #23302a;
+  --color-rule-2: #34433b;
+
+  --color-sodium: #f5a524;
+  --color-sodium-2: #ffcd6b;
+  --color-sodium-ink: #2a1c05;
+
+  --color-up: #58d9a3;
+  --color-down: #ff6a51;
+
+  /* Publisher skin for /demo. A different company, on purpose. */
+  --color-press: #f6f3ec;
+  --color-press-2: #ffffff;
+  --color-press-ink: #17191c;
+  --color-press-dim: #5d6570;
+  --color-press-rule: #ddd7ca;
+  --color-press-accent: #1f4fd8;
+
+  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-azeret), ui-monospace, "SF Mono", monospace;
+
+  --radius-kiosk: 4px;
+  --radius-plate: 2px;
+
+  --text-micro: 0.6875rem;
+  --text-micro--line-height: 1rem;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --font-archivo-fallback: ui-sans-serif, system-ui, sans-serif;
+  }
+
+  html {
+    background-color: var(--color-ink);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-ink);
+    color: var(--color-paper);
+    font-family: var(--font-display);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--color-sodium);
+    color: var(--color-sodium-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-sodium);
+    outline-offset: 2px;
+  }
+
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+}
+
+@layer components {
+  /* ---- the physical object -------------------------------------------- */
+
+  /* Painted steel panel: a hard top light, a dark bottom, a hairline seam. */
+  .chassis {
+    background:
+      linear-gradient(180deg, var(--color-ink-3) 0%, var(--color-ink-2) 38%, var(--color-ink) 100%);
+    border: 1px solid var(--color-rule);
+    box-shadow:
+      inset 0 1px 0 rgba(233, 226, 212, 0.09),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.5),
+      0 24px 60px -28px rgba(0, 0, 0, 0.95);
+  }
+
+  /* Striped canvas awning. The one thing that says newsstand and not card. */
+  .awning {
+    --awning-angle: 108deg;
+    --awning-band: 13px;
+    height: 12px;
+    background: repeating-linear-gradient(
+      var(--awning-angle),
+      var(--color-sodium) 0 var(--awning-band),
+      #10332c var(--awning-band) calc(var(--awning-band) * 2)
+    );
+    box-shadow: inset 0 -3px 5px -3px rgba(0, 0, 0, 0.7);
+  }
+
+  /* Scalloped valance hanging off the awning. */
+  .valance {
+    height: 7px;
+    background-image: radial-gradient(
+      circle at 50% 0,
+      #10332c 0 5.5px,
+      transparent 5.6px
+    );
+    background-size: 13px 7px;
+    background-repeat: repeat-x;
+    filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.45));
+  }
+
+  /* Stamped metal spec plate, riveted to the base of the unit. */
+  .plate {
+    background: linear-gradient(180deg, #0a110e, #070c0a);
+    border-top: 1px solid var(--color-rule);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    color: var(--color-paper-3);
+  }
+
+  .rivet {
+    width: 4px;
+    height: 4px;
+    border-radius: 9999px;
+    background: radial-gradient(circle at 30% 30%, #43524a, #131d18 70%);
+    box-shadow: 0 1px 0 rgba(233, 226, 212, 0.07);
+  }
+
+  /* The sodium lamp over the counter. */
+  .lamp {
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background: var(--color-sodium);
+    box-shadow: 0 0 0 1px rgba(245, 165, 36, 0.28), 0 0 14px 2px rgba(245, 165, 36, 0.55);
+    animation: lamp-flicker 5.5s ease-in-out infinite;
+  }
+
+  @keyframes lamp-flicker {
+    0%, 43%, 47%, 100% { opacity: 1; }
+    45% { opacity: 0.55; }
+    72% { opacity: 0.86; }
+  }
+
+  /* Pressed key. Physical travel on :active, no bounce. */
+  .key {
+    position: relative;
+    border: 1px solid var(--color-rule-2);
+    border-radius: var(--radius-kiosk);
+    background: linear-gradient(180deg, var(--color-ink-4), var(--color-ink-2));
+    box-shadow: inset 0 1px 0 rgba(233, 226, 212, 0.1), 0 2px 0 0 #050807;
+    transition: transform 90ms ease, box-shadow 90ms ease, border-color 140ms ease;
+  }
+  .key:hover:not(:disabled) {
+    border-color: var(--color-paper-3);
+  }
+  .key:active:not(:disabled) {
+    transform: translateY(2px);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.55), 0 0 0 0 #050807;
+  }
+  .key:disabled {
+    opacity: 0.42;
+    cursor: not-allowed;
+  }
+
+  .key-sodium {
+    background: linear-gradient(180deg, var(--color-sodium-2), var(--color-sodium));
+    border-color: #c9861a;
+    color: var(--color-sodium-ink);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 2px 0 0 #8a5c10;
+  }
+  .key-sodium:hover:not(:disabled) {
+    border-color: #ffe0a3;
+  }
+  .key-sodium:active:not(:disabled) {
+    box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.3), 0 0 0 0 #8a5c10;
+  }
+
+  /* Side selector: a latching switch, not a button. */
+  .latch {
+    border: 1px solid var(--color-rule-2);
+    border-radius: var(--radius-kiosk);
+    background: linear-gradient(180deg, var(--color-ink-3), var(--color-ink));
+    transition: transform 90ms ease, border-color 140ms ease, background 140ms ease;
+  }
+  .latch:active {
+    transform: translateY(1px);
+  }
+  .latch[data-on="true"][data-side="up"] {
+    border-color: var(--color-up);
+    background: linear-gradient(180deg, rgba(88, 217, 163, 0.2), rgba(88, 217, 163, 0.05));
+    box-shadow: inset 0 0 0 1px rgba(88, 217, 163, 0.25);
+  }
+  .latch[data-on="true"][data-side="down"] {
+    border-color: var(--color-down);
+    background: linear-gradient(180deg, rgba(255, 106, 81, 0.2), rgba(255, 106, 81, 0.05));
+    box-shadow: inset 0 0 0 1px rgba(255, 106, 81, 0.25);
+  }
+
+  /* Ticket tear line under a submitted order. */
+  .tear {
+    height: 1px;
+    background-image: linear-gradient(90deg, var(--color-rule-2) 0 5px, transparent 5px 10px);
+    background-size: 10px 1px;
+  }
+
+  /* The publisher skin. Bound here rather than in @theme because next/font
+     defines --font-newsreader on the element carrying its className, and a
+     :root token pointing at a variable that does not exist there computes to
+     nothing, which silently drops the page back to the default sans. */
+  .skin-press {
+    font-family: var(--font-newsreader), Georgia, "Times New Roman", serif;
+  }
+
+  /* The publisher keeps its own neutral mono so the two brands stay apart. */
+  .press-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  .numerals {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  /* Street asphalt under the unit on the landing page. */
+  .asphalt {
+    background-image:
+      radial-gradient(ellipse 60% 70% at 50% 0%, rgba(245, 165, 36, 0.13), transparent 70%),
+      repeating-linear-gradient(90deg, rgba(233, 226, 212, 0.035) 0 1px, transparent 1px 5px);
+  }
+
+  .hairline-grid {
+    background-image:
+      linear-gradient(var(--color-rule) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-rule) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 75% 60% at 50% 0%, #000 20%, transparent 75%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lamp {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
