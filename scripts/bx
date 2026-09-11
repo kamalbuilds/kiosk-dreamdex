@@ -1,0 +1,4 @@
+#!/bin/zsh
+TID=${KIOSK_TID:-0F52D7F86E1CBE204F3BA48F56F78489}
+bhn deepsurge use $TID >/dev/null 2>&1
+bhn deepsurge "$@"

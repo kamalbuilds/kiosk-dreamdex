@@ -65,6 +65,17 @@ export function readableError(err: unknown): { kind: TradeErrorKind; message: st
   if (e?.code === 4001 || low.includes("user rejected") || low.includes("user denied")) {
     return { kind: "rejected", message: "You cancelled the signature in your wallet." };
   }
+  // 0xd48c4403 is ImmediateOrCancelNoFill(). The ticket sends a taker order, so when
+  // nothing rests on the other side the venue rejects it outright rather than leaving
+  // it resting. Without this case the raw selector reaches the reader, which is the
+  // least useful sentence on the screen.
+  if (low.includes("0xd48c4403") || low.includes("immediateorcancelnofill")) {
+    return {
+      kind: "book",
+      message:
+        "Nothing is resting on that side right now, so the order found no offer to cross. Try again once the book has a quote.",
+    };
+  }
   if (low.includes("insufficient allowance") || low.includes("erc20: insufficient allowance")) {
     return { kind: "allowance", message: "The collateral approval did not go through. Approve tUSDC and retry." };
   }
@@ -93,4 +104,4 @@ export function readableError(err: unknown): { kind: TradeErrorKind; message: st
   };
 }
 
-export type TradeErrorKind = "rejected" | "allowance" | "collateral" | "revert";
+export type TradeErrorKind = "rejected" | "allowance" | "collateral" | "book" | "revert";
