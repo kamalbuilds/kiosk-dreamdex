@@ -24,6 +24,10 @@ OUT = pathlib.Path("/tmp/kioskaudio")
 OUT.mkdir(exist_ok=True)
 
 SEGMENTS = [
+    ("00", "Kiosk. One script tag turns any page into a prediction market, and pays the page owner "
+           "for the order flow."),
+    ("07", "Kiosk is live on Somnia Shannon. The router address is on screen, the code is public, and "
+           "every number in this video was read back from the chain, not from our own database."),
     ("01", "Every order on a DreamDEX event contract carries two arguments almost nobody looks at. "
            "An address called builder, and a fee for that builder. The venue is willing to pay whoever "
            "brings it order flow. I read that cap on chain. On Shannon, and on mainnet, it is zero. "

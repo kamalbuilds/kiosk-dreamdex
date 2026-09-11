@@ -98,13 +98,13 @@ still_to_clip() {  # still_to_clip <png> <seconds> <out>
   ffmpeg -y -loglevel error -loop 1 -i "$1" -t "$2" -r 30 \
     -vf "scale=${W}:${H},format=yuv420p" -c:v libx264 -preset medium -crf 19 "$3"
 }
-still_to_clip /tmp/kioskcards/title.png 4 "$WORK/title.mp4"
-still_to_clip /tmp/kioskcards/end.png 9 "$WORK/end.mp4"
+still_to_clip /tmp/kioskcards/title.png $(dur "$AUDIO/seg00.mp3") "$WORK/title.mp4"
+still_to_clip /tmp/kioskcards/end.png $(dur "$AUDIO/seg07.mp3") "$WORK/end.mp4"
 
 # Pad the narration with the silence the cards occupy so picture and voice stay locked.
-ffmpeg -y -loglevel error -f lavfi -i "anullsrc=r=44100:cl=stereo:d=4" -c:a pcm_s16le "$WORK/pre.wav"
-ffmpeg -y -loglevel error -f lavfi -i "anullsrc=r=44100:cl=stereo:d=9" -c:a pcm_s16le "$WORK/post.wav"
-printf "file '%s'\n" "$WORK/pre.wav" "$WORK/voice.wav" "$WORK/post.wav" > "$WORK/afinal.txt"
+printf "file '%s'\n" "$AUDIO/seg00.mp3" > "$WORK/afinal.txt"
+for id in 01 02 03 04 05 06; do printf "file '%s'\n" "$AUDIO/seg$id.mp3" >> "$WORK/afinal.txt"; done
+printf "file '%s'\n" "$AUDIO/seg07.mp3" >> "$WORK/afinal.txt"
 ffmpeg -y -loglevel error -f concat -safe 0 -i "$WORK/afinal.txt" -c:a pcm_s16le "$WORK/final.wav"
 
 printf "file '%s'\n" "$WORK/title.mp4" > "$WORK/vfinal.txt"
