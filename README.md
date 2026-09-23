@@ -138,7 +138,6 @@ Three properties hold by construction:
 | `web/lib/kiosk.ts` | market discovery, book reads, the signed trade path |
 | `examples/plain-html/` | a static HTML file with no build step that embeds the widget |
 | `scripts/verify-live.mjs` | the live proof, asserts post-conditions on chain |
-| `docs/WIN-CONDITIONS.md` | what we decided to build and why, before writing code |
 
 ## Running it
 
